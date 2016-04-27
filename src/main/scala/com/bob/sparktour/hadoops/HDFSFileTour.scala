@@ -1,22 +1,26 @@
-package com.bob.sparktour.hdfs
+package com.bob.sparktour.hadoops
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs._
 
-object FileTour {
+object HDFSFileTour {
 
   val hdfspath = "hdfs://127.0.0.1:9000"
 
   def main(args: Array[String]) {
 
+    createHDFSFile("/out/bbb", "fuck 51 test u should know")
+
+    var byte: Array[Byte] = readHDFSFile("/user/hive/warehouse/xp/000000_0")
+    var content = new String(byte)
+    println(content)
+
     listAll("/")
 
     uploadLocalFile2HDFS("/Users/bob/Desktop/abc", "/out/abc")
 
-    createHDFSFile("/out/bbb", "fuck 51 test u should know")
-
-    val byte: Array[Byte] = readHDFSFile("/out/bbb")
-    val content = new String(byte)
+    byte = readHDFSFile("/out/bbb")
+    content = new String(byte)
     println(content)
 
     listAll("/out")

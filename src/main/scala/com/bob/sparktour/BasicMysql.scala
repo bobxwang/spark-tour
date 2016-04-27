@@ -12,7 +12,7 @@ object BasicMysql {
     prop.setProperty("user", "root")
     prop.setProperty("password", "zufangbao69fc")
 
-    val sparkConf: SparkConf = new SparkConf().setMaster("local").setAppName("ShiroTutorial")
+    val sparkConf: SparkConf = new SparkConf().setMaster("local[*]").setAppName("SparksqlTutorial")
     val sc = new SparkContext(sparkConf)
     val sqlContext = new SQLContext(sc)
 
@@ -20,6 +20,6 @@ object BasicMysql {
     val gp = areas.groupBy("CityCode")
     val sorted = gp.count.orderBy("count")
     sorted.show(10)
-    sorted.rdd.saveAsTextFile("/Users/bob/Desktop/flight_top")
+    sorted.rdd.saveAsTextFile("file:/Users/bob/Desktop/submit")
   }
 }

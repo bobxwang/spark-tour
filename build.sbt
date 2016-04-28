@@ -66,6 +66,14 @@ libraryDependencies ++= Seq(
   "org.apache.hbase" % "hbase-common" % "1.2.1" % spark_scope
 )
 
+val curator = "3.1.0"
+
+/* The Curator Framework high level API. This is built on top of the client and should pull it in automatically. */
+libraryDependencies ++= Seq(
+  "org.apache.curator" % "curator-recipes" % "2.9.1",
+  "org.apache.curator" % "curator-examples" % "2.9.1"
+)
+
 libraryDependencies ~= {
   _ map {
     case m if m.organization == "com.typesafe.play" =>
@@ -77,4 +85,4 @@ libraryDependencies ~= {
 
 assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false)
 
-run in Compile <<= Defaults.runTask(fullClasspath in Compile, mainClass in (Compile, run), runner in (Compile, run))
+run in Compile <<= Defaults.runTask(fullClasspath in Compile, mainClass in(Compile, run), runner in(Compile, run))

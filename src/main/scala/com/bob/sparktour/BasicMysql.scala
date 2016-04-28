@@ -21,5 +21,6 @@ object BasicMysql {
     val sorted = gp.count.orderBy("count")
     sorted.show(10)
     sorted.rdd.saveAsTextFile("file:/Users/bob/Desktop/submit")
+    sc.stop
   }
 }

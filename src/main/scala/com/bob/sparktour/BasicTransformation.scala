@@ -49,7 +49,7 @@ object BasicTransformation {
           partX ++= partY
         } //combine the hashsets
       )
-    results.foreach(tpl => println(tpl._1 + " : " + tpl._2.size))
+    results.collect.foreach(tpl => println(tpl._1 + " : " + tpl._2.size))
 
   }
 }

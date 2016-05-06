@@ -3,16 +3,23 @@ package com.bob.sparktour.kafkas
 import java.util.concurrent.{Executors, ExecutorService}
 import java.util.{Date, Properties}
 
+import kafka.api.{OffsetRequest => aOffsetRequest, FetchRequestBuilder, PartitionOffsetRequestInfo}
+import kafka.common.{ErrorMapping, TopicAndPartition}
 import kafka.consumer.{KafkaStream, Consumer, ConsumerConfig}
+import kafka.javaapi.consumer.SimpleConsumer
+import kafka.javaapi._
+import kafka.javaapi.message.ByteBufferMessageSet
 import kafka.producer.{Producer, KeyedMessage, ProducerConfig}
 
 import scala.util.Random
+
+import scala.collection.JavaConversions._
 
 object KafkaApps extends App {
 
   val zk = "192.168.2.200:2182"
   val kafkabroke = "192.168.2.200:9092"
-  val topic = "bbtestbb"
+  val topic = "bbtestbb-new"
 
   def run(func: => Unit) = {
     new Thread(new Runnable {
@@ -20,11 +27,14 @@ object KafkaApps extends App {
     }).start()
   }
 
-//  val kp = new KProducer(10, topic, kafkabroke)
-//  run(kp.send())
+  //  val kp = new KProducer(10, topic, kafkabroke)
+  //  run(kp.send())
 
-  val kc = new KConsumer(zk, "gpc", topic, 100)
-  run(kc.run(10))
+  //  val kc = new KConsumer(zk, "gpddddcab", topic, 100)
+  //  run(kc.run(10))
+
+  val lkc = new LKConsumer(topic, List("192.168.2.200"), 9092, 0)
+  lkc.run(2)
 
   /**
    *
@@ -55,6 +65,99 @@ object KafkaApps extends App {
     }
   }
 
+  class LKConsumer(val topic: String, brokers: List[String], port: Int, partition: Int) {
+
+    var m_replicaBrokers: scala.collection.mutable.ListBuffer[String] = scala.collection.mutable.ListBuffer.empty[String]
+
+    def run(offset: Long) = {
+      val metadata = findLeader()
+      if (metadata == null) {
+        println("can't find metadata for topic and partition, exiting")
+      }
+      if (metadata.leader == null) {
+        println("can't find leader for topic and partition, exiting")
+      }
+      val leaderBroker = metadata.leader.host
+      val clientName = s"Client_${topic}_${partition}"
+      val consumer = new SimpleConsumer(leaderBroker, port, 100000, 64 * 1024, clientName)
+      val readOffset = findLastOffset(consumer, topic, partition, kafka.api.OffsetRequest.EarliestTime)
+      println(s"righnt now offset is ${readOffset}")
+      val req: kafka.api.FetchRequest = new FetchRequestBuilder()
+        .clientId(consumer.clientId)
+        .addFetch(topic, partition, offset, 10000)
+        .build()
+      val fetchResponse: kafka.javaapi.FetchResponse = consumer.fetch(req)
+      if (fetchResponse.hasError) {
+        val errorCode = fetchResponse.errorCode(topic, partition)
+        if (errorCode == ErrorMapping.OffsetOutOfRangeCode) {
+          println(s"get fetch request with offset out of range: [${offset}]")
+        }
+      } else {
+        val msgSet: ByteBufferMessageSet = fetchResponse.messageSet(topic, partition)
+        msgSet.foreach(x => {
+          println(x.offset)
+          println(x.nextOffset)
+          val payload = x.message.payload
+          val bytes: Array[Byte] = new Array(payload.limit)
+          payload.get(bytes)
+          println(s"${x.offset} : ${new String(bytes, "UTF-8")}")
+        })
+      }
+    }
+
+    def findLastOffset(simpleConsumer: SimpleConsumer, topic: String, partition: Int, whichTime: Long): Long = {
+      val topicAndPartition: TopicAndPartition = new TopicAndPartition(topic, partition)
+      val requestInfo: Map[TopicAndPartition, PartitionOffsetRequestInfo] = Map(topicAndPartition -> new PartitionOffsetRequestInfo(whichTime, 1))
+      val request: OffsetRequest = new OffsetRequest(requestInfo, aOffsetRequest.CurrentVersion, simpleConsumer.clientId)
+      val response: OffsetResponse = simpleConsumer.getOffsetsBefore(request)
+      if (response.hasError) {
+        println("Error fetching data Offset Data the Broker. Reason: " + response.errorCode(topic, partition))
+        0
+      } else {
+        response.offsets(topic, partition)(0)
+      }
+    }
+
+    def findLeader(): PartitionMetadata = {
+      import scala.util.control._
+      var returnMetaData: PartitionMetadata = null
+      val loop = new Breaks
+      loop.breakable {
+        brokers.foreach(x => {
+          val consumer = new SimpleConsumer(x, port, 100000, 64 * 1024, "leaderLookup")
+          val req = new TopicMetadataRequest(List(topic))
+          val resp: TopicMetadataResponse = consumer.send(req)
+          val metaData = resp.topicsMetadata
+          metaData.foreach(y => {
+            y.partitionsMetadata.foreach(z => {
+              if (z.partitionId == partition) {
+                returnMetaData = z
+                if (consumer != null) {
+                  consumer.close()
+                }
+                loop.break
+              }
+            })
+          })
+        })
+      }
+      if (returnMetaData != null) {
+        m_replicaBrokers.clear()
+        returnMetaData.replicas.foreach(x => {
+          m_replicaBrokers.append(x.host)
+        })
+      }
+      returnMetaData
+    }
+  }
+
+  /**
+   * high level consumer
+   * @param zk
+   * @param groupId
+   * @param topic
+   * @param delay
+   */
   class KConsumer(val zk: String, val groupId: String,
                   val topic: String,
                   val delay: Long) {
@@ -74,7 +177,7 @@ object KafkaApps extends App {
       val props = new Properties()
       props.put("zookeeper.connect", zookeeper)
       props.put("group.id", groupId)
-      props.put("auto.offset.reset", "largest")
+      props.put("auto.offset.reset", "smallest")
       props.put("zookeeper.session.timeout.ms", "400")
       props.put("zookeeper.sync.time.ms", "200")
       props.put("auto.commit.interval.ms", "1000")

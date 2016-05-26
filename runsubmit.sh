@@ -36,7 +36,8 @@ fi
 # should export MESOS_NATIVE_JAVA_LIBRARY=/usr/local/lib/libmesos.so
 #"${SPARK_HOME}"/bin/spark-submit --name "bbruninyarn" \
 #--class com.bob.sparktour.BasicTransformation \
-#--master mesos://192.168.2.22:5050
+#--master mesos://192.168.2.22:5050 \
+#--conf spark.cores.max=1 \
 #--deploy-mode cluster \
 #--executor-memory 1024M \
 #--num-executors 50 \

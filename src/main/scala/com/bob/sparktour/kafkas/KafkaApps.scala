@@ -219,4 +219,26 @@ object KafkaApps extends App {
     }
   }
 
+
+  /**
+   * topic has many partitions
+   *
+   * each partitioned message has a unique sequence id called as "offset"
+   *
+   * replicas r nothing but "backups" of a partition,never read or write data,just used to prevent data loss
+   *
+   * Brokers are simple system responsible for maintaining the pub-lished data. Each broker may have zero or more partitions per topic. Assume, if there are N partitions in a topic and N number of brokers, each broker will have one partition.
+   *
+   * kafka cluster having more than one broker
+   *
+   * producers r the publiser of messages to one or more kafka topic
+   *
+   * consumers read data from brokers, subscribes to one or more topics and consumer the published message by pulling data from the broker
+   *
+   * leader is the node responsible for all reads and writes for the given partition, every partition has one server acting as a leader
+   *
+   * kafka is simply a collection of topics split into one or more partitions,a partition is a linearly ordered sequeence of messages,where
+   * each message is identified by their index(
+   */
+
 }

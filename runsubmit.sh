@@ -9,6 +9,12 @@ if [ -z "${SPARK_HOME}" ]; then
     exit 1
 fi
 
+# 可以在提交时通过增加–driver-java-options选项来添加CMS(Concurrent Mark and Seeep) GC相关参数
+
+# 在spark和stream如kafka集成时，可以采用receiver方式(在此实现kafka consumer的功能来接收)，也可采用自己周期性的主动查询kafka消息分区
+# 的offset来获取，进而去定义在每个batch中需要处理的消息(此方案还处于试验阶段--参考官网说明)
+
+# 如果采用的是receiver，有可能造成数据丢失(Driver或Worker宕机)，除非我们开启WAL(Write Ahead Log)，不过会造成Receiver吞吐量下降。
 
 # below is run on standalone mode
 #"${SPARK_HOME}"/bin/spark-submit --name "bbsubmit" \

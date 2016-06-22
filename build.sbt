@@ -20,12 +20,16 @@ scalacOptions ++= Seq(
 
 javaOptions += "-server -Xss1m -Xmx2g"
 
+/* 当想快速构建项目时可以将一些第三方库放在3rdlibs这个目录下，默认是lib目录，我们可以通过如下进行更改 */
+unmanagedBase <<= baseDirectory { base => base / "3rdlibs" }
+
 logLevel := Level.Warn
 
 val spark_scope = System.getProperty("spark.scope", "compile")
 
 /* 会导入hadoop,不会导入hbase,hadoop版本为2.2.0 */
 libraryDependencies ++= Seq(
+  "org.apache.spark" %% "spark-hive" % "1.6.1" % spark_scope,
   "org.apache.spark" %% "spark-sql" % "1.6.1" % spark_scope,
   "org.apache.spark" %% "spark-core" % "1.6.1" % spark_scope,
   "org.apache.spark" %% "spark-streaming" % "1.6.1" % spark_scope,

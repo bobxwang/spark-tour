@@ -34,6 +34,30 @@ object BasicTransformation {
     val x = sc.parallelize(Array("Joseph", "Jimmy", "Tina", "Thomas", "James", "Cory", "Christine", "Jackeline", "Juan"), 3)
     x.collect.foreach(println)
 
+    // mapPartitions跟map类似，不过映射函数的参数由RDD中的每一个元素变成了RDD中每一个分区的迭代器，如果在映射的过程中需频繁创建额外对象，使用此将比map高效，比如将RDD的所有数据通过JDBC连接写入数据库，如果使用map，那将为每一个元素都创建一个connection，而如果使用mapPartitions，那么就是每一个分区一个connection
+    val l = sc.parallelize(List(1, 2, 3, 4, 5), 4)
+    l.mapPartitions(x => List(x.sum).toIterator)
+    l.mapPartitions(x => x.map(y => y + 1)) // 可以看出跟map的不同，是独立的在RDD的每一个分块上运行
+    // 而mapPartitionsWithIndex跟mapPartitions不一样的是，还额外提供了一个参数用于表明现在是哪个分区的索引
+    val lc = l.mapPartitionsWithIndex((x, y) => {
+        println("")
+        print(x)
+        print("---")
+        val t = y.map(z => z + x)
+        t.foreach(x => {
+          print(x)
+          print("---")
+        })
+        t
+      })
+    lc.collect().foreach(println)
+
+    val ll = List(1, 2, 3, 5, 6, 8, 3, 4, 2, 8)
+    ll.groupBy(x => x >= 4)
+
+    val rd = sc.makeRDD(1 to 5, 2)
+    println(rd.fold(0)(_ + _))
+
     val data = sc.parallelize(
       List(
         ("gogu", 1),
@@ -88,3 +112,11 @@ object BasicTransformation {
     })
   }
 }
+
+/** Action
+  *
+  * reduce(func): 说白了就是聚集，但是传入的函数是两个参数返回一个，这个函数必须满足交换律和结合律，就像monadid的那个函数
+  * collect(): 一般在filter或足够小的结果的时候，再用collect封装返回一个数组
+  * take(n): 返回前n个elements，这个是driver program返回的
+  * saveAsSequenceFile(path): 只能用于key-value对上，保存到txtFile或hdfs上
+  */

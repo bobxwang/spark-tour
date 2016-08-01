@@ -58,6 +58,19 @@ object BasicTransformation {
     val rd = sc.makeRDD(1 to 5, 2)
     println(rd.fold(0)(_ + _))
 
+
+    /*
+    * 优先用reduceByKey而不是groupByKey，因为spark知道它可以在每个分区移动数据前将输出数据与一个共用的key结合
+    * when call on a dataset of (K,V) pairs,return a ds of (K,V) pairs, where the V is for each key aggregated using
+    * the given reduce function, which must by of type (V,V) => V
+    * while the groupByKey is return a ds with (K,Iterable<V>) pairs
+    * */
+    val words = Array("one", "two", "two", "three", "three", "three")
+    val wordsRDD = sc.parallelize(words).map(word => (word, 1))
+    wordsRDD.reduceByKey(_ + _).collect().foreach(println)
+    wordsRDD.groupByKey().map(w => (w._1, w._2.sum)).collect().foreach(println)
+
+
     val data = sc.parallelize(
       List(
         ("gogu", 1),

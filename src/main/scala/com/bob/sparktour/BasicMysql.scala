@@ -7,10 +7,10 @@ object BasicMysql {
 
   def main(args: Array[String]) {
 
-    val url = "jdbc:mysql://192.168.2.200:3306/51banka"
+    val url = "jdbc:mysql://127.0.0.1:3306/dbname"
     val prop = new java.util.Properties
-    prop.setProperty("user", "root")
-    prop.setProperty("password", "zufangbao69fc")
+    prop.setProperty("user", "username")
+    prop.setProperty("password", "password")
 
     val sparkConf: SparkConf = new SparkConf().setMaster("local[*]").setAppName("SparksqlTutorial")
     val sc = new SparkContext(sparkConf)

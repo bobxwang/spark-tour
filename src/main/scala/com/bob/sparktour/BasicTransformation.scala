@@ -24,10 +24,10 @@ object BasicTransformation {
     sc.makeRDD(0 to 1000)
 
     /**
-     * if masterURL is local, uses 1 thread only
-     * is local[n],uses n threads
-     * is local[*],uses as many threads as the number of processors available to jvm, using Runtime.getRuntime.availableProcessors
-     */
+      * if masterURL is local, uses 1 thread only
+      * is local[n],uses n threads
+      * is local[*],uses as many threads as the number of processors available to jvm, using Runtime.getRuntime.availableProcessors
+      */
 
     //    System.setProperty("spark.executor.memory", "128M")
 
@@ -40,16 +40,16 @@ object BasicTransformation {
     l.mapPartitions(x => x.map(y => y + 1)) // 可以看出跟map的不同，是独立的在RDD的每一个分块上运行
     // 而mapPartitionsWithIndex跟mapPartitions不一样的是，还额外提供了一个参数用于表明现在是哪个分区的索引
     val lc = l.mapPartitionsWithIndex((x, y) => {
-        println("")
+      println("")
+      print(x)
+      print("---")
+      val t = y.map(z => z + x)
+      t.foreach(x => {
         print(x)
         print("---")
-        val t = y.map(z => z + x)
-        t.foreach(x => {
-          print(x)
-          print("---")
-        })
-        t
       })
+      t
+    })
     lc.collect().foreach(println)
 
     val ll = List(1, 2, 3, 5, 6, 8, 3, 4, 2, 8)
@@ -100,13 +100,14 @@ object BasicTransformation {
   }
 
   /**
-   * 数据分析中，处理key,value的pair数据是极为常见的场景，
-   * 从函数层面看，这类操作具有共同特征，即将类型[(K,V)]转成[(K,C)]，这里V，C可以是相同类型也可以是不同类型
-   * 这数据处理不是单纯的对pair的value进行map，而是针对不同的key值对原有的value进行联合,因而不仅类型可能不同，元素个数也不同
-   *
-   * 下面是一个具体使用例子
-   * @param sc
-   */
+    * 数据分析中，处理key,value的pair数据是极为常见的场景，
+    * 从函数层面看，这类操作具有共同特征，即将类型[(K,V)]转成[(K,C)]，这里V，C可以是相同类型也可以是不同类型
+    * 这数据处理不是单纯的对pair的value进行map，而是针对不同的key值对原有的value进行联合,因而不仅类型可能不同，元素个数也不同
+    *
+    * 下面是一个具体使用例子
+    *
+    * @param sc
+    */
   def usingCombine(sc: SparkContext): Unit = {
     val appleone = Fruit("apple", 5)
     val appletwo = Fruit("apple", 8)

@@ -33,7 +33,8 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-sql" % "1.6.1" % spark_scope,
   "org.apache.spark" %% "spark-core" % "1.6.1" % spark_scope,
   "org.apache.spark" %% "spark-streaming" % "1.6.1" % spark_scope,
-  "org.apache.spark" %% "spark-mllib" % "1.6.1" % spark_scope
+  "org.apache.spark" %% "spark-mllib" % "1.6.1" % spark_scope,
+  "org.apache.spark" %% "spark-streaming-kafka" % "1.6.1" % spark_scope
 ).map(_.exclude("org.apache.hadoop", "hadoop-yarn-server-nodemanager")
   .exclude("com.google.code.findbugs", "jsr305")
   .exclude("org.spark-project.spark", "unused")
@@ -60,9 +61,6 @@ libraryDependencies ++= Seq(
 
 libraryDependencies += "mysql" % "mysql-connector-java" % "5.1.36"
 
-libraryDependencies += ("org.apache.spark" %% "spark-streaming-kafka" % "1.6.1")
-  .exclude("org.spark-project.spark", "unused")
-
 /* hbase稳定版本为偶数，开发人员预揽版本为奇数 */
 /* hbase1.2.1配套的hadoop版本为2.5.1 */
 libraryDependencies ++= Seq(
@@ -73,10 +71,10 @@ libraryDependencies ++= Seq(
 val curator = "3.1.0"
 
 /* The Curator Framework high level API. This is built on top of the client and should pull it in automatically. */
-libraryDependencies ++= Seq(
-  "org.apache.curator" % "curator-recipes" % "2.9.1",
-  "org.apache.curator" % "curator-examples" % "2.9.1"
-)
+//libraryDependencies ++= Seq(
+//  "org.apache.curator" % "curator-recipes" % "2.9.1",
+//  "org.apache.curator" % "curator-examples" % "2.9.1"
+//)
 
 libraryDependencies ~= {
   _ map {

@@ -1,4 +1,4 @@
-package com.bob.sparktour
+package com.bob.sparktour.transform
 
 import org.apache.spark.{SparkConf, SparkContext}
 
@@ -14,6 +14,7 @@ object BasicTransformation {
 
   def main(args: Array[String]) {
 
+    System.setProperty("spark.executor.memory", "128M")
     val sparkConf: SparkConf = new SparkConf()
     if (args.size == 2) {
       sparkConf.setMaster(args(0))
@@ -29,35 +30,14 @@ object BasicTransformation {
       * is local[*],uses as many threads as the number of processors available to jvm, using Runtime.getRuntime.availableProcessors
       */
 
-    //    System.setProperty("spark.executor.memory", "128M")
-
     val x = sc.parallelize(Array("Joseph", "Jimmy", "Tina", "Thomas", "James", "Cory", "Christine", "Jackeline", "Juan"), 3)
     x.collect.foreach(println)
-
-    // mapPartitions跟map类似，不过映射函数的参数由RDD中的每一个元素变成了RDD中每一个分区的迭代器，如果在映射的过程中需频繁创建额外对象，使用此将比map高效，比如将RDD的所有数据通过JDBC连接写入数据库，如果使用map，那将为每一个元素都创建一个connection，而如果使用mapPartitions，那么就是每一个分区一个connection
-    val l = sc.parallelize(List(1, 2, 3, 4, 5), 4)
-    l.mapPartitions(x => List(x.sum).toIterator)
-    l.mapPartitions(x => x.map(y => y + 1)) // 可以看出跟map的不同，是独立的在RDD的每一个分块上运行
-    // 而mapPartitionsWithIndex跟mapPartitions不一样的是，还额外提供了一个参数用于表明现在是哪个分区的索引
-    val lc = l.mapPartitionsWithIndex((x, y) => {
-      println("")
-      print(x)
-      print("---")
-      val t = y.map(z => z + x)
-      t.foreach(x => {
-        print(x)
-        print("---")
-      })
-      t
-    })
-    lc.collect().foreach(println)
 
     val ll = List(1, 2, 3, 5, 6, 8, 3, 4, 2, 8)
     ll.groupBy(x => x >= 4)
 
     val rd = sc.makeRDD(1 to 5, 2)
     println(rd.fold(0)(_ + _))
-
 
     /*
     * 优先用reduceByKey而不是groupByKey，因为spark知道它可以在每个分区移动数据前将输出数据与一个共用的key结合

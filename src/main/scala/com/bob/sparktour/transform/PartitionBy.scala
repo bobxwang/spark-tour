@@ -19,4 +19,11 @@ object PartitionBy extends App {
   // 生成新的ShuffleRDD, 将原RDD进行重新分区
   val rs = lRdd.partitionBy(new UDPartitioner(3))
   rs.foreach(println)
+
+  // it will print as belows:
+  // (1,A)
+  // (2,b)
+  // (3,c)
+  // (1,A)
+  // 上面的顺序不一定,每次运行都会不一样
 }

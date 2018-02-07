@@ -15,7 +15,7 @@ import scala.util.Random
 
 import scala.collection.JavaConversions._
 
-object KafkaWithoutScalaApps extends App {
+object KafkaWithoutSparkApps extends App {
 
   val zk = "192.168.2.200:2182"
   val kafkabroke = "192.168.2.200:9092"

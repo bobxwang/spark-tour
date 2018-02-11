@@ -26,7 +26,7 @@ conf.registerKryoClasses(Array(classOf[Myclass],classOf[Uclass]))
 * 传统的MR工作流是一系列job,每个job在迭代时都会将数据存入HDFS，而spark支持DAG及管道操作，这样可以让我们执行复杂的工作时不用将数据持久化
 
 # Spark Checkpoint
-一般分布式数据集的容错有**数据检查点**跟**记录数据的更新**，spark选择了后者。
+一般分布式数据集的容错有**元数据检查点**跟**记录数据的更新**，spark选择了后者。
 
 * Lineage机制
 

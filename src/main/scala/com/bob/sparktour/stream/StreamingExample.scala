@@ -22,7 +22,8 @@ object StreamingExample extends Logging {
   }
 
   def main(args: Array[String]) {
-    val config = new SparkConf().setAppName("OrderStream")
+    // 当在一个集群中运行时, 你不希望在程序中hardcode这个master, 而是使用spark-submit启动应用程序并在那里接收它
+    val config = new SparkConf().setAppName("OrderStream").setMaster("local[*]")
     val sc = new SparkContext(config)
     val ssc = new StreamingContext(sc, Seconds(5))
     val stream: DStream[Order] = ssc.receiverStream(new OrderReceiver("127.0.0.1", 8000))

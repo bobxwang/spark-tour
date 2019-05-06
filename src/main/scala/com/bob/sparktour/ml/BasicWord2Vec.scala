@@ -1,15 +1,18 @@
 package com.bob.sparktour.ml
 
 import org.apache.spark.ml.feature.Word2Vec
-import org.apache.spark.sql.SQLContext
-import org.apache.spark.{SparkContext, SparkConf}
+import org.apache.spark.sql.SparkSession
 
 object BasicWord2Vec {
 
   def main(args: Array[String]) {
-    val sparkConf: SparkConf = new SparkConf().setMaster("local[*]").setAppName("basicEstimator")
-    val sc = new SparkContext(sparkConf)
-    val sqlContext = new SQLContext(sc)
+    val spark = SparkSession.builder()
+      .appName("basicEstimator")
+      .master("local[*]")
+      .config("spark.sql.shuffle.partitions", "6")
+      .getOrCreate()
+    spark.conf.set("spark.executor.memory", "2g")
+    val sqlContext = spark.sqlContext
 
     val documentDF = sqlContext.createDataFrame(Seq(
       "Hi I heard about Spark".split(" "),

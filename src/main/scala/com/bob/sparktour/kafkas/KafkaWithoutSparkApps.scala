@@ -1,20 +1,8 @@
 package com.bob.sparktour.kafkas
 
-import java.util.concurrent.{Executors, ExecutorService}
-import java.util.{Date, Properties}
-
-import kafka.api.{OffsetRequest => aOffsetRequest, FetchRequestBuilder, PartitionOffsetRequestInfo}
-import kafka.common.{ErrorMapping, TopicAndPartition}
-import kafka.consumer.{KafkaStream, Consumer, ConsumerConfig}
-import kafka.javaapi.consumer.SimpleConsumer
-import kafka.javaapi._
-import kafka.javaapi.message.ByteBufferMessageSet
-import kafka.producer.{Producer, KeyedMessage, ProducerConfig}
-
-import scala.util.Random
-
-import scala.collection.JavaConversions._
-
+/**
+  * 基于 kafka 0.8 版本
+  */
 object KafkaWithoutSparkApps extends App {
 
   val zk = "192.168.2.200:2182"

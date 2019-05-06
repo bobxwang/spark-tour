@@ -1,21 +1,19 @@
 package com.bob.sparktour.hadoops
 
-import org.apache.spark.sql.hive.HiveContext
-import org.apache.spark.{SparkContext, SparkConf}
+import org.apache.spark.sql.SparkSession
 
 object HiveTour {
 
   def main(args: Array[String]) {
 
-    val sparkConf: SparkConf = new SparkConf()
-    if (args.size == 2) {
-      sparkConf.setMaster(args(0))
-      sparkConf.setAppName(args(1))
-    }
-    val sc = new SparkContext(sparkConf)
-    val hiveContext = new HiveContext(sc)
-    hiveContext.sql("CREATE TABLE IF NOT EXISTS sptest (key INT, value STRING)")
+    val spark = SparkSession.builder()
+      .appName("basicEstimator")
+      .master("local[*]")
+      .config("spark.sql.shuffle.partitions", "6")
+      .enableHiveSupport()
+      .getOrCreate()
+    spark.conf.set("spark.executor.memory", "2g")
 
-    sc.stop
+    spark.sql("CREATE TABLE IF NOT EXISTS sptest (key INT, value STRING)")
   }
 }

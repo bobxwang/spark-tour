@@ -3,16 +3,18 @@ package com.bob.sparktour.ml
 import org.apache.spark.ml.classification.LogisticRegression
 import org.apache.spark.ml.param.ParamMap
 import org.apache.spark.mllib.linalg.{Vector, Vectors}
-import org.apache.spark.sql.SQLContext
-import org.apache.spark.sql.Row
-import org.apache.spark.{SparkContext, SparkConf}
+import org.apache.spark.sql.{Row, SparkSession}
 
 object BasicEstimator {
 
   def main(args: Array[String]) {
-    val sparkConf: SparkConf = new SparkConf().setMaster("local[*]").setAppName("basicEstimator")
-    val sc = new SparkContext(sparkConf)
-    val sqlContext = new SQLContext(sc)
+    val spark = SparkSession.builder()
+      .appName("basicEstimator")
+      .master("local[*]")
+      .config("spark.sql.shuffle.partitions", "6")
+      .getOrCreate()
+    spark.conf.set("spark.executor.memory", "2g")
+    val sqlContext = spark.sqlContext
 
     val training = sqlContext.createDataFrame(Seq(
       (1.0, Vectors.dense(0.0, 1.1, 0.1)),
@@ -54,5 +56,4 @@ object BasicEstimator {
     }
 
   }
-
 }

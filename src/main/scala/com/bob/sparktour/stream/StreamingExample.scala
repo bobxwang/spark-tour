@@ -1,10 +1,11 @@
 package com.bob.sparktour
 
-import com.bob.sparktour.stream.{OrderReceiver, Order}
+import com.bob.sparktour.stream.{Order, OrderReceiver}
 import org.apache.log4j.{Level, Logger}
+import org.apache.spark.internal.Logging
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Seconds, StreamingContext}
-import org.apache.spark.{SparkContext, SparkConf, Logging}
+import org.apache.spark.{SparkConf, SparkContext}
 
 /** Utility functions for Spark Streaming examples. */
 object StreamingExample extends Logging {

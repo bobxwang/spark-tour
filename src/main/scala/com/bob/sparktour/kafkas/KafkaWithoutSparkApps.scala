@@ -1,5 +1,19 @@
 package com.bob.sparktour.kafkas
 
+import java.util.concurrent.{ExecutorService, Executors}
+import java.util.{Date, Properties}
+
+import kafka.api.{FetchRequestBuilder, PartitionOffsetRequestInfo, OffsetRequest => aOffsetRequest}
+import kafka.common.{ErrorMapping, TopicAndPartition}
+import kafka.consumer.{Consumer, ConsumerConfig, KafkaStream}
+import kafka.javaapi._
+import kafka.javaapi.consumer.SimpleConsumer
+import kafka.javaapi.message.ByteBufferMessageSet
+import kafka.producer.{KeyedMessage, Producer, ProducerConfig}
+
+import scala.collection.JavaConversions._
+import scala.util.Random
+
 /**
   * 基于 kafka 0.8 版本
   */
@@ -25,11 +39,11 @@ object KafkaWithoutSparkApps extends App {
   lkc.run(2)
 
   /**
-   *
-   * @param events 循环列表值
-   * @param topic
-   * @param brokers
-   */
+    *
+    * @param events 循环列表值
+    * @param topic
+    * @param brokers
+    */
   class KProducer(val events: Int, topic: String, brokers: String) {
     val rnd = new Random()
     val props = new Properties()
@@ -140,12 +154,13 @@ object KafkaWithoutSparkApps extends App {
   }
 
   /**
-   * high level consumer
-   * @param zk
-   * @param groupId
-   * @param topic
-   * @param delay
-   */
+    * high level consumer
+    *
+    * @param zk
+    * @param groupId
+    * @param topic
+    * @param delay
+    */
   class KConsumer(val zk: String, val groupId: String,
                   val topic: String,
                   val delay: Long) {
